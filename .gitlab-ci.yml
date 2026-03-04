@@ -1,0 +1,45 @@
+variables:
+  GOLANGCI_LINT_VERSION: 'v2.5.0'
+
+image: docker:latest
+
+services:
+  - name: docker:dind
+
+stages:
+  - test
+
+lint:
+  stage: test
+  script:
+    - apk add --no-cache make
+    - CONTAINER_NAMESPACE=$CI_COMMIT_SHORT_SHA make lint-fix
+  tags:
+    - test
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /^release\/.*$/
+
+test:
+  stage: test
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - .cache/docker # Кэшируем Docker слои
+  tags:
+    - test
+  script:
+    - apk add --no-cache make
+    - CONTAINER_NAMESPACE=$CI_COMMIT_SHORT_SHA make test-coverage
+  coverage: '/total:\s+\(statements\)\s+\d+.\d+%/'
+  artifacts:
+    when: always
+    paths:
+      - build/test-ci/coverage/coverage.xml
+      - build/test-ci/coverage/junit-report.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/test-ci/coverage/coverage.xml
+      junit: build/test-ci/coverage/junit-report.xml
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || $CI_COMMIT_BRANCH == "test" || $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /^release\/.*$/

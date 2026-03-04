@@ -1,0 +1,42 @@
+networks:
+  net:
+    name: ${CONTAINER_NAMESPACE:-default}_base
+    driver: bridge
+
+services:
+  go:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    container_name: ${CONTAINER_NAMESPACE:-default}_golang
+    networks:
+      - net
+    restart: always
+    depends_on:
+      db_pgsql:
+        condition: service_healthy
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    env_file: .env
+
+  db_pgsql:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB:  ${POSTGRES_DB}
+    ports:
+      - ${POSTGRES_PORT}:5432
+    volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
+      - ./.docker/pgsql/data:/var/lib/postgresql/data
+    networks:
+      - net
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d monitor" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+

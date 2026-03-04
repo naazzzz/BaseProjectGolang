@@ -1,0 +1,8 @@
+.env
+/log/
+/.idea/
+/build/pgsql/
+/services.yml
+/tests
+/vendor
+/.docker

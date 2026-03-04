@@ -1,0 +1,14 @@
+FROM golangci/golangci-lint:v2.5.0-alpine
+
+WORKDIR /application
+
+# Сначала копируем только go.mod и go.sum для установки зависимостей
+COPY go.mod go.sum ./
+
+# Загружаем зависимости
+RUN go mod download
+
+# Теперь копируем остальной код
+COPY . .
+
+CMD ["golangci-lint", "run", "./...", "--allow-parallel-runners"]

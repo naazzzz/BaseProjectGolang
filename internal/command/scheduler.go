@@ -35,6 +35,7 @@ func NewScheduler(
 	}
 }
 
+// todo Реализовать интерфейс и вынести в отдельный пакет для переопределния в случае необходимости
 func (scheduler *Scheduler) Schedule(ctx context.Context) {
 	scheduler.mu.Lock()
 

@@ -1,14 +1,15 @@
 package auth
 
 import (
+	common "BaseProjectGolang/internal/constant"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
 
-	common "BaseProjectGolang/internal/common/constant"
 	"BaseProjectGolang/internal/config"
 	cryptoUtil "BaseProjectGolang/pkg/crypto"
+
 	"github.com/dromara/carbon/v2"
 	"github.com/gofiber/fiber/v3"
 	"github.com/rotisserie/eris"

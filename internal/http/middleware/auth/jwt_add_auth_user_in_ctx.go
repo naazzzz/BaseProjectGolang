@@ -1,14 +1,14 @@
 package auth
 
 import (
+	common "BaseProjectGolang/internal/constant"
 	"context"
 	"errors"
 	"net/http"
 
-	common "BaseProjectGolang/internal/common/constant"
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/infrastructure/database"
-	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/user"
+	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"

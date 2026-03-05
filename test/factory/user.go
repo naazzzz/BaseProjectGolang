@@ -3,7 +3,7 @@ package user
 import (
 	"time"
 
-	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/user"
+	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/test"
 
 	"github.com/Pallinder/go-randomdata"

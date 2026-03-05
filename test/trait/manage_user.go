@@ -3,14 +3,14 @@ package trait
 import (
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/infrastructure/database"
-	"BaseProjectGolang/internal/infrastructure/database/orm/model/user"
+	"BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/test"
 	user2 "BaseProjectGolang/test/factory"
 
 	factoryLib "github.com/bluele/factory-go/factory"
 )
 
-func CreateUserWithServiceInfo(db *database.DataBase, _ *config.Config, userAttributes map[string]interface{}) *user.User {
+func CreateUserWithServiceInfo(db *database.DataBase, _ *config.Config, userAttributes map[string]interface{}) *userModel.User {
 	userFactory := user2.NewUserFactory()
 
 	for key, value := range userAttributes {
@@ -19,5 +19,5 @@ func CreateUserWithServiceInfo(db *database.DataBase, _ *config.Config, userAttr
 		})
 	}
 
-	return test.CreateObjectInTestDatabaseFromFactory(userFactory, db, nil).(*user.User)
+	return test.CreateObjectInTestDatabaseFromFactory(userFactory, db, nil).(*userModel.User)
 }

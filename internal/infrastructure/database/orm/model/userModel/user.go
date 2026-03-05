@@ -1,16 +1,16 @@
-package user
+package userModel
 
 import (
 	"time"
 )
 
 type User struct {
-	ID        uint       `gorm:"primaryKey;autoIncrement" json:"id"`
-	CreatedAt *time.Time `json:"-"`
-	UpdatedAt *time.Time `json:"-"`
-	Username  string     `gorm:"uniqueIndex;not null;type:varchar(191)" json:"username"`
-	Password  string     `gorm:"not null" json:"-"`
-	Active    bool       `json:"active"`
+	ID        uint `gorm:"primaryKey;autoIncrement" json:"id"`
+	CreatedAt *time.Time
+	UpdatedAt *time.Time
+	Username  string `gorm:"uniqueIndex;not null;type:varchar(191)" json:"username"`
+	Password  string `gorm:"not null"`
+	Active    bool   `json:"active"`
 
 	Tokens []*OAuthAccessToken `gorm:"-" json:"-"`
 }

@@ -1,6 +1,7 @@
 package test
 
 import (
+	common "BaseProjectGolang/internal/constant"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -14,7 +15,6 @@ import (
 	"testing"
 
 	"BaseProjectGolang/internal/bootstrap"
-	common "BaseProjectGolang/internal/common/constant"
 	"BaseProjectGolang/internal/config"
 	appDependency "BaseProjectGolang/internal/dependency/app"
 	"BaseProjectGolang/internal/http/middleware/auth"

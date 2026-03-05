@@ -12,15 +12,16 @@ import (
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/dependency"
 	"BaseProjectGolang/internal/http/controller"
-	auth3 "BaseProjectGolang/internal/http/controller/auth"
+	auth2 "BaseProjectGolang/internal/http/controller/auth"
 	"BaseProjectGolang/internal/http/middleware"
 	"BaseProjectGolang/internal/http/middleware/auth"
 	"BaseProjectGolang/internal/http/middleware/context"
 	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/internal/infrastructure/database/orm/plugin"
+	"BaseProjectGolang/internal/infrastructure/database/orm/repository/token"
 	"BaseProjectGolang/internal/infrastructure/database/orm/repository/user"
-	user2 "BaseProjectGolang/internal/usecase/user"
-	auth2 "BaseProjectGolang/internal/usecase/user/auth"
+	"BaseProjectGolang/internal/usecase/token/access/create"
+	"BaseProjectGolang/internal/usecase/user/auth/login"
 	"BaseProjectGolang/internal/validation"
 	"BaseProjectGolang/pkg/fasthttpmock"
 	"BaseProjectGolang/pkg/log"
@@ -35,11 +36,11 @@ func InitializeApp(cfg *config.Config, db *database.DataBase) (*bootstrap.App, e
 	baseController := controller.NewBaseController(cfg)
 	setupCtxQB := context.NewSetupCtxQB(db)
 	repository := user.NewUserRepository()
-	accessTokenRepository := user.NewTokenRepository()
-	service := auth2.NewAuthService(cfg, repository, accessTokenRepository)
-	userService := user2.NewUserService(cfg, repository)
+	accessTokenRepository := token.NewTokenRepository()
+	handler := create.NewCreateAccessTokenHandler(cfg, repository, accessTokenRepository)
+	loginHandler := login.NewLoginHandler(cfg, repository, accessTokenRepository, handler)
 	xValidator := validation.NewValidator(cfg)
-	authController := auth3.NewAuthController(baseController, service, userService, xValidator, repository, accessTokenRepository)
+	authController := auth2.NewAuthController(baseController, loginHandler, xValidator, repository, accessTokenRepository)
 	handlers := dependency.NewHandlers(globalMiddleware, jwtAddAuthUserInCtx, baseController, setupCtxQB, authController)
 	loggerConfig := GetLoggerConfig(cfg)
 	logger := log.InitLogger(loggerConfig)

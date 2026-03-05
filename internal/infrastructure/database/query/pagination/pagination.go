@@ -1,7 +1,7 @@
 package pagination
 
 import (
-	contextkeys "BaseProjectGolang/internal/common/constant"
+	"BaseProjectGolang/internal/constant"
 	"fmt"
 	"strconv"
 

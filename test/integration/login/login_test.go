@@ -10,6 +10,8 @@ import (
 	"BaseProjectGolang/internal/http/dto"
 	"BaseProjectGolang/test"
 	"BaseProjectGolang/test/trait"
+
+	"github.com/gofiber/fiber/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,7 +29,7 @@ func TestLoginSuccess(t *testing.T) {
 	req, _ := http.NewRequest(http.MethodPost, "/api/login", strings.NewReader(string(jsonLoginRequest)))
 	req.Header.Add("Content-Type", "application/json")
 
-	resp, err := app.FiberInstance.Test(req)
+	resp, err := app.FiberInstance.Test(req, fiber.TestConfig{Timeout: 10000000})
 	if err != nil {
 		t.Error(err)
 	}

@@ -5,9 +5,10 @@ package app
 import (
 	"BaseProjectGolang/internal/bootstrap"
 	"BaseProjectGolang/internal/command"
-	_interface "BaseProjectGolang/internal/common/abstraction"
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/dependency"
+	token2 "BaseProjectGolang/internal/domain/token"
+	user2 "BaseProjectGolang/internal/domain/user"
 	"BaseProjectGolang/internal/http/controller"
 	"BaseProjectGolang/internal/http/controller/auth"
 	"BaseProjectGolang/internal/http/middleware"
@@ -15,9 +16,10 @@ import (
 	"BaseProjectGolang/internal/http/middleware/context"
 	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/internal/infrastructure/database/orm/plugin"
+	"BaseProjectGolang/internal/infrastructure/database/orm/repository/token"
 	userRepository "BaseProjectGolang/internal/infrastructure/database/orm/repository/user"
-	"BaseProjectGolang/internal/usecase/user"
-	authService "BaseProjectGolang/internal/usecase/user/auth"
+	"BaseProjectGolang/internal/usecase/token/access/create"
+	"BaseProjectGolang/internal/usecase/user/auth/login"
 	"BaseProjectGolang/internal/validation"
 	"BaseProjectGolang/pkg/fasthttpmock"
 	"BaseProjectGolang/pkg/log"
@@ -42,17 +44,15 @@ func InitializeApp(
 		fasthttpmock.NewWrapClient,
 
 		validation.NewValidator,
-		wire.Bind(new(_interface.IValidator), new(*validation.XValidator)),
+		wire.Bind(new(validation.IValidator), new(*validation.XValidator)),
 
 		userRepository.NewUserRepository,
-		wire.Bind(new(_interface.IUserRepository), new(*userRepository.Repository)),
-		userRepository.NewTokenRepository,
-		wire.Bind(new(_interface.ITokenRepository), new(*userRepository.AccessTokenRepository)),
+		wire.Bind(new(user2.IUserRepository), new(*userRepository.Repository)),
+		token.NewTokenRepository,
+		wire.Bind(new(token2.ITokenRepository), new(*token.AccessTokenRepository)),
 
-		authService.NewAuthService,
-		wire.Bind(new(_interface.IAuthService), new(*authService.Service)),
-		user.NewUserService,
-		wire.Bind(new(_interface.IUserService), new(*user.Service)),
+		create.NewCreateAccessTokenHandler,
+		login.NewLoginHandler,
 
 		controller.NewBaseController,
 

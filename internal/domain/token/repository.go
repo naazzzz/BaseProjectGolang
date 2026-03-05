@@ -1,15 +1,14 @@
-package abstractions
+package token
 
 import (
+	"BaseProjectGolang/internal/domain/user"
 	"context"
-
-	"BaseProjectGolang/internal/infrastructure/database/orm/model/user"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 type ITokenRepository interface {
-	Create(ctx context.Context, token *user.OAuthAccessToken) error
+	Create(ctx context.Context, token *AccessToken) error
 	RevokeByClaims(ctx context.Context, claims jwt.MapClaims) error
 	DeleteByUser(ctx context.Context, userObj *user.User) error
 }

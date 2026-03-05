@@ -1,6 +1,8 @@
-package user
+package token
 
 import (
+	common "BaseProjectGolang/internal/constant"
+	"BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/internal/infrastructure/database/query"
 	"context"
 	"crypto/rand"
@@ -8,8 +10,6 @@ import (
 	"fmt"
 	"strconv"
 	"time"
-
-	common "BaseProjectGolang/internal/common/constant"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
@@ -21,7 +21,7 @@ const (
 	DefaultMockClientIDNumber = 3
 )
 
-type OAuthAccessToken struct {
+type AccessToken struct {
 	ID        string
 	UserID    uint
 	ClientID  uint
@@ -31,21 +31,44 @@ type OAuthAccessToken struct {
 	CreatedAt *time.Time
 	UpdatedAt *time.Time
 	ExpiresAt *time.Time
-	// relations
-	User *User `gorm:"foreignKey:UserID" json:"-"`
 }
 
-func (token *OAuthAccessToken) TableName() string {
-	return "oauth_access_tokens"
+func NewAccessToken(userID uint) *AccessToken {
+	now := time.Now()
+	yearAfter := time.Now().AddDate(1, 0, 0)
+
+	return &AccessToken{
+		ID:        "",
+		UserID:    userID,
+		ClientID:  DefaultMockClientIDNumber,
+		Name:      "PersonalAccessToken",
+		Scopes:    "[]",
+		Revoked:   false,
+		CreatedAt: &now,
+		UpdatedAt: &now,
+		ExpiresAt: &yearAfter,
+	}
 }
 
-func (token *OAuthAccessToken) GenerateID(ctx context.Context) (*OAuthAccessToken, error) {
+func (token *AccessToken) GetClaimsObj() *jwt.MapClaims {
+	return &jwt.MapClaims{
+		"Aud":    strconv.FormatUint(uint64(token.ClientID), 10),
+		"Jti":    token.ID,
+		"Iat":    token.CreatedAt.Unix(),
+		"Nbf":    token.UpdatedAt.Unix(),
+		"Exp":    token.ExpiresAt.Unix(),
+		"Sub":    strconv.FormatUint(uint64(token.UserID), 10),
+		"Scopes": token.Scopes,
+	}
+}
+
+func (token *AccessToken) GenerateID(ctx context.Context) (*AccessToken, error) {
 	qb := ctx.Value(common.QbCtxKey).(*query.Builder)
 	n := 40
 
 	var b []byte
 
-	var existToken *OAuthAccessToken
+	var existToken *userModel.OAuthAccessToken
 
 	for ok := true; ok; ok = existToken.ID != "" {
 		b = make([]byte, n)
@@ -62,16 +85,4 @@ func (token *OAuthAccessToken) GenerateID(ctx context.Context) (*OAuthAccessToke
 	}
 
 	return token, nil
-}
-
-func (token *OAuthAccessToken) GetClaimsObj() *jwt.MapClaims {
-	return &jwt.MapClaims{
-		"Aud":    strconv.FormatUint(uint64(token.ClientID), 10),
-		"Jti":    token.ID,
-		"Iat":    token.CreatedAt.Unix(),
-		"Nbf":    token.UpdatedAt.Unix(),
-		"Exp":    token.ExpiresAt.Unix(),
-		"Sub":    strconv.FormatUint(uint64(token.UserID), 10),
-		"Scopes": token.Scopes,
-	}
 }

@@ -1,7 +1,7 @@
 package context
 
 import (
-	common "BaseProjectGolang/internal/common/constant"
+	common "BaseProjectGolang/internal/constant"
 	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/internal/infrastructure/database/query"
 

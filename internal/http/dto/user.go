@@ -1,7 +1,7 @@
 package dto
 
 import (
-	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/user"
+	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/pkg/converter"
 )
 

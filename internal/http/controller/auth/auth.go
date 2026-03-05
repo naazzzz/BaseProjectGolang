@@ -1,9 +1,12 @@
 package auth
 
 import (
+	"BaseProjectGolang/internal/domain/token"
+	"BaseProjectGolang/internal/domain/user"
+	"BaseProjectGolang/internal/usecase/user/auth/login"
+	"BaseProjectGolang/internal/validation"
 	"time"
 
-	_interface "BaseProjectGolang/internal/common/abstraction"
 	"BaseProjectGolang/internal/http/controller"
 	"BaseProjectGolang/internal/http/dto"
 
@@ -14,28 +17,25 @@ import (
 
 type Controller struct {
 	*controller.BaseController
-	validator       _interface.IValidator
-	authService     _interface.IAuthService
-	userService     _interface.IUserService
-	userRepository  _interface.IUserRepository
-	tokenRepository _interface.ITokenRepository
+	validator       validation.IValidator
+	login           *login.Handler
+	userRepository  user.IUserRepository
+	tokenRepository token.ITokenRepository
 }
 
 func NewAuthController(
 	base *controller.BaseController,
-	authService _interface.IAuthService,
-	userService _interface.IUserService,
-	validator _interface.IValidator,
-	userRepository _interface.IUserRepository,
-	tokenRepository _interface.ITokenRepository,
+	login *login.Handler,
+	validator validation.IValidator,
+	userRepository user.IUserRepository,
+	tokenRepository token.ITokenRepository,
 ) *Controller {
 	return &Controller{
 		BaseController:  base,
 		validator:       validator,
-		authService:     authService,
+		login:           login,
 		userRepository:  userRepository,
 		tokenRepository: tokenRepository,
-		userService:     userService,
 	}
 }
 
@@ -60,17 +60,9 @@ func (authController *Controller) Login(ctx fiber.Ctx) error {
 		return err
 	}
 
-	authUser, err := authController.authService.Login(
+	authToken, err := authController.login.Execute(
 		ctx,
-		loginRequest,
-	)
-	if err != nil {
-		return err
-	}
-
-	authToken, err := authController.authService.CreateTokenForUser(
-		ctx,
-		authUser,
+		(*login.Command)(loginRequest),
 	)
 	if err != nil {
 		return err

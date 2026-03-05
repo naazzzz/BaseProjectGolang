@@ -2,9 +2,14 @@ package validation
 
 import (
 	"BaseProjectGolang/internal/config"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/rotisserie/eris"
 )
+
+type IValidator interface {
+	Validate(data interface{}) (err error)
+}
 
 type XValidator struct {
 	validator *validator.Validate

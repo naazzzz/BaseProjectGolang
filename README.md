@@ -1,5 +1,7 @@
-## Base Golang Project
-# Перед началом работы
+# Base Golang Project
+Базовый проект для развертки golang-сервисов, ориентированный на DDD.
+
+## Перед началом работы
 
 1. Скопировать .env.example в .env
 2. Скопировать services.example.yml в services.yml

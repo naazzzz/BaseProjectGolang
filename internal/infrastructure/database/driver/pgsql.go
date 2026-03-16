@@ -1,6 +1,8 @@
 package driver
 
 import (
+	"BaseProjectGolang/internal/config"
+	logInternal "BaseProjectGolang/pkg/log"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -8,9 +10,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"BaseProjectGolang/internal/config"
-	logInternal "BaseProjectGolang/pkg/log"
 
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database"

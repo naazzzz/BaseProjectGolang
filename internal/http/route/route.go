@@ -4,7 +4,7 @@ import (
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/dependency"
 	errorHandler "BaseProjectGolang/internal/http/error"
-	"BaseProjectGolang/internal/http/middleware/auth"
+	"BaseProjectGolang/internal/http/middleware/authmdl"
 
 	"github.com/gofiber/fiber/v3"
 	jwtware "github.com/saveblush/gofiber3-contrib/jwt"
@@ -38,7 +38,7 @@ func NewRoutes(
 	baseGroup := fiberInstance.Group("/")
 	baseGroup.Use(
 		handlers.SetupCtxQB.DefaultQueryBuilderMiddleware,
-		auth.CookieAuthMiddleware,
+		authmdl.CookieAuthMiddleware,
 	)
 
 	// Настройка маршрутов

@@ -2,24 +2,26 @@ package token
 
 import (
 	common "BaseProjectGolang/internal/constant"
-	"BaseProjectGolang/internal/domain/token"
-	"BaseProjectGolang/internal/domain/user"
+	"BaseProjectGolang/internal/domain/tokendmn"
+	"BaseProjectGolang/internal/domain/userdmn"
 	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/internal/infrastructure/database/query"
 	"BaseProjectGolang/pkg/converter"
 	"context"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/soner3/flora"
 )
 
 type AccessTokenRepository struct {
+	flora.Component
 }
 
-func NewTokenRepository() *AccessTokenRepository {
+func NewAccessTokenRepository() *AccessTokenRepository {
 	return &AccessTokenRepository{}
 }
 
-func (tokenRepository *AccessTokenRepository) Create(ctx context.Context, token *token.AccessToken) error {
+func (tokenRepository *AccessTokenRepository) Create(ctx context.Context, token *tokendmn.AccessToken) error {
 	entity, err := converter.TypeConverter[*userModel.OAuthAccessToken](token)
 	if err != nil {
 		return err
@@ -35,19 +37,19 @@ func (tokenRepository *AccessTokenRepository) RevokeByClaims(ctx context.Context
 	qb := ctx.Value(common.QbCtxKey).(*query.Builder)
 
 	return qb.Current.
-		Model(&token.AccessToken{}).
+		Model(&tokendmn.AccessToken{}).
 		Where("id = ?", claims["Jti"].(string)).
 		Update("Revoked", true).
 		Error
 }
 
-func (tokenRepository *AccessTokenRepository) DeleteByUser(ctx context.Context, userObj *user.User) error {
+func (tokenRepository *AccessTokenRepository) DeleteByUser(ctx context.Context, userObj *userdmn.User) error {
 	qb := ctx.Value(common.QbCtxKey).(*query.Builder)
 
 	return qb.Current.
-		Model(&token.AccessToken{}).
+		Model(&tokendmn.AccessToken{}).
 		Where("user_id = ?", userObj.ID).
 		Unscoped().
-		Delete(&token.AccessToken{}).
+		Delete(&tokendmn.AccessToken{}).
 		Error
 }

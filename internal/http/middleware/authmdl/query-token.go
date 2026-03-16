@@ -1,9 +1,8 @@
-package auth
+package authmdl
 
 import (
-	"net/http"
-
 	"BaseProjectGolang/internal/config"
+	"net/http"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/rotisserie/eris"

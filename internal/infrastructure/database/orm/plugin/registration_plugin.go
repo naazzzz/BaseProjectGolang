@@ -2,6 +2,8 @@ package plugin
 
 import (
 	"BaseProjectGolang/internal/infrastructure/database"
+
+	"github.com/soner3/flora"
 )
 
 type IRegistrationPlugin interface {
@@ -9,6 +11,7 @@ type IRegistrationPlugin interface {
 }
 
 type RegistrationPlugin struct {
+	flora.Component
 	db *database.DataBase
 	// add new plugin
 }

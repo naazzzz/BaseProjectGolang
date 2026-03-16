@@ -3,6 +3,7 @@ package fasthttpmock
 import (
 	"testing"
 
+	"github.com/soner3/flora"
 	"github.com/valyala/fasthttp"
 )
 
@@ -12,6 +13,7 @@ type (
 	}
 
 	WrapClient struct {
+		flora.Component
 		realClient   *fasthttp.Client
 		mockClient   *Client
 		mocked       bool

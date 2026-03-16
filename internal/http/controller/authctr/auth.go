@@ -1,34 +1,35 @@
-package auth
+package authctr
 
 import (
-	"BaseProjectGolang/internal/domain/token"
-	"BaseProjectGolang/internal/domain/user"
-	"BaseProjectGolang/internal/usecase/user/auth/login"
-	"BaseProjectGolang/internal/validation"
-	"time"
-
+	"BaseProjectGolang/internal/domain/tokendmn"
+	"BaseProjectGolang/internal/domain/userdmn"
 	"BaseProjectGolang/internal/http/controller"
 	"BaseProjectGolang/internal/http/dto"
+	"BaseProjectGolang/internal/usecase/userusc/auth/login"
+	"BaseProjectGolang/internal/validation"
+	"time"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 )
 
 type Controller struct {
+	flora.Component `flora:"constructor=NewAuthController"`
 	*controller.BaseController
 	validator       validation.IValidator
-	login           *login.Handler
-	userRepository  user.IUserRepository
-	tokenRepository token.ITokenRepository
+	login           *login.LoginHandler
+	userRepository  userdmn.IUserRepository
+	tokenRepository tokendmn.ITokenRepository
 }
 
 func NewAuthController(
 	base *controller.BaseController,
-	login *login.Handler,
+	login *login.LoginHandler,
 	validator validation.IValidator,
-	userRepository user.IUserRepository,
-	tokenRepository token.ITokenRepository,
+	userRepository userdmn.IUserRepository,
+	tokenRepository tokendmn.ITokenRepository,
 ) *Controller {
 	return &Controller{
 		BaseController:  base,
@@ -101,7 +102,7 @@ func (authController *Controller) Login(ctx fiber.Ctx) error {
 // @Failure      default  {object}  error.HTTPError "The body of any response with an error"
 // @Router /api/logout [get]
 func (authController *Controller) Logout(ctx fiber.Ctx) error {
-	userCtx := ctx.Locals("user").(*jwt.Token)
+	userCtx := ctx.Locals("userdmn").(*jwt.Token)
 	claimsObj := userCtx.Claims.(jwt.MapClaims)
 
 	if err := authController.tokenRepository.RevokeByClaims(

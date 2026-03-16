@@ -1,4 +1,4 @@
-package token
+package tokendmn
 
 import (
 	common "BaseProjectGolang/internal/constant"

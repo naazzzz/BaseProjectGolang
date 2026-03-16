@@ -1,7 +1,7 @@
 package create
 
 import (
-	domainUser "BaseProjectGolang/internal/domain/user"
+	domainUser "BaseProjectGolang/internal/domain/userdmn"
 	"context"
 )
 

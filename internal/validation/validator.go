@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-playground/validator/v10"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 )
 
 type IValidator interface {
@@ -12,10 +13,11 @@ type IValidator interface {
 }
 
 type XValidator struct {
+	flora.Component
 	validator *validator.Validate
 }
 
-func NewValidator(
+func NewXValidator(
 	_ *config.Config,
 ) *XValidator {
 	valid := &XValidator{

@@ -2,26 +2,28 @@ package bootstrap
 
 import (
 	"BaseProjectGolang/internal/command"
+	"BaseProjectGolang/internal/config"
+	"BaseProjectGolang/internal/dependency"
+	errorHandler "BaseProjectGolang/internal/http/error"
+	"BaseProjectGolang/internal/http/route"
+	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/internal/infrastructure/database/orm/plugin"
+	"BaseProjectGolang/pkg/fasthttpmock"
+	"BaseProjectGolang/pkg/log"
 	"context"
 	"encoding/json"
 	"os"
 	"path/filepath"
 	"time"
 
-	"BaseProjectGolang/internal/config"
-	"BaseProjectGolang/internal/dependency"
-	errorHandler "BaseProjectGolang/internal/http/error"
-	"BaseProjectGolang/internal/http/route"
-	"BaseProjectGolang/internal/infrastructure/database"
-	"BaseProjectGolang/pkg/fasthttpmock"
-	"BaseProjectGolang/pkg/log"
-
 	"github.com/gofiber/fiber/v3"
+	"github.com/soner3/flora"
 )
 
+// App represents the application.
 type (
 	App struct {
+		flora.Component
 		FiberInstance *fiber.App
 		Route         *route.Router
 		Config        *config.Config
@@ -34,7 +36,8 @@ type (
 	}
 )
 
-func Bootstrap(
+// NewApp creates a new App instance.
+func NewApp(
 	conf *config.Config,
 	handlers *dependency.Handlers,
 	database *database.DataBase,
@@ -66,6 +69,7 @@ func Bootstrap(
 	return
 }
 
+// setUpSettings initializes the settings for the application.
 func (app *App) setUpSettings() (err error) {
 	app.setUpDefaultInstance()
 	app.setUpGlobalMiddleware()
@@ -79,6 +83,7 @@ func (app *App) setUpSettings() (err error) {
 	return
 }
 
+// RegistrationAllGormPlugins registers all GORM plugins with the application.
 func (app *App) RegistrationAllGormPlugins() (err error) {
 	if err = app.Plugin.RegisterPluginsInGorm(); err != nil {
 		return
@@ -87,12 +92,14 @@ func (app *App) RegistrationAllGormPlugins() (err error) {
 	return
 }
 
+// setUpScheduler sets up the scheduler for the application.
 func (app *App) setUpScheduler() {
 	go app.Scheduler.Schedule(context.Background())
 }
 
 const timeoutCtxValue = 5 * time.Second
 
+// Stop stops the application gracefully.
 func (app *App) Stop() {
 	if app.Scheduler != nil {
 		app.Scheduler.Stop() // Остановите шедулер
@@ -115,6 +122,7 @@ func (app *App) Stop() {
 	}
 }
 
+// setUpDefaultInstance initializes the default instance of Fiber.
 func (app *App) setUpDefaultInstance() {
 	app.FiberInstance = fiber.New(fiber.Config{
 		ErrorHandler: errorHandler.NewErrorHandler(),
@@ -124,6 +132,7 @@ func (app *App) setUpDefaultInstance() {
 	})
 }
 
+// getTemplatePath returns the path to the templates directory
 func getTemplatePath() string {
 	wd, err := os.Getwd()
 	if err != nil {
@@ -133,12 +142,34 @@ func getTemplatePath() string {
 	return filepath.Join(wd, "web", "views", "templates")
 }
 
+// setUpGlobalMiddleware sets up global middleware for Fiber instance
 func (app *App) setUpGlobalMiddleware() {
 	app.Handlers.GlobalMiddleware.SetUpStatic(app.FiberInstance)
 	app.Handlers.GlobalMiddleware.SetUpFiberLogger(app.FiberInstance)
 	app.Handlers.GlobalMiddleware.SetUpRecover(app.FiberInstance)
 }
 
-func (app *App) Run() (err error) {
+// runDefaultHTTPServer starts the HTTP server.
+func (app *App) runDefaultHTTPServer() (err error) {
 	return app.FiberInstance.Listen(":" + app.Config.AppPort)
+}
+
+// Run starts the application
+func (app *App) Run(ctx context.Context) error {
+	errCh := make(chan error, 2)
+
+	// Start HTTP server in a separate goroutine.
+	go func() {
+		errCh <- app.runDefaultHTTPServer()
+	}()
+
+	// Add another goroutine to handle graceful shutdown.
+
+	select {
+	case err := <-errCh:
+		return err
+	case <-ctx.Done():
+		app.Logger.Info("Shutting down servers")
+		return nil
+	}
 }

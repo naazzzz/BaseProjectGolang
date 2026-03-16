@@ -1,24 +1,24 @@
 package dependency
 
 import (
-	"log"
-
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/http/controller"
-	"BaseProjectGolang/internal/http/controller/auth"
+	"BaseProjectGolang/internal/http/controller/authctr"
 	"BaseProjectGolang/internal/http/middleware"
-	authMiddleware "BaseProjectGolang/internal/http/middleware/auth"
+	authMiddleware "BaseProjectGolang/internal/http/middleware/authmdl"
 	"BaseProjectGolang/internal/http/middleware/context"
-	"BaseProjectGolang/internal/infrastructure/database"
-	logUtil "BaseProjectGolang/pkg/log"
+	log2 "BaseProjectGolang/pkg/log"
+	"log"
 
+	"github.com/soner3/flora"
 	"github.com/valyala/fasthttp"
 )
 
 type Handlers struct {
+	flora.Component
 	BaseController *controller.BaseController
 	// SwaggerController          *global.SwaggerController
-	AuthController *auth.Controller
+	AuthController *authctr.Controller
 
 	GlobalMiddleware *middleware.GlobalMiddleware
 	AuthMiddleware   *authMiddleware.JwtAddAuthUserInCtx
@@ -30,7 +30,7 @@ func NewHandlers(
 	authMiddleware *authMiddleware.JwtAddAuthUserInCtx,
 	baseController *controller.BaseController,
 	setupCtxQB *context.SetupCtxQB,
-	authController *auth.Controller,
+	authController *authctr.Controller,
 ) *Handlers {
 	return &Handlers{
 		BaseController:   baseController,
@@ -41,24 +41,35 @@ func NewHandlers(
 	}
 }
 
-func InitServicesBeforeDi() (db *database.DataBase, cfg *config.Config) {
+type Start struct {
+	flora.Configuration
+}
+
+func (*Start) NewStart() (cfg *config.Config) {
 	var err error
 
-	cfg, err = config.LoadConfig(false, "")
+	cfg, err = config.NewConfig(false, "")
 	if err != nil {
 		log.Println(err)
-	}
-
-	logger := logUtil.InitLogger(cfg.Logs)
-
-	db, err = database.NewDataBase(cfg, logger)
-	if err != nil {
-		panic(err)
 	}
 
 	return
 }
 
-func NewClient() *fasthttp.Client {
+type ClientConfig struct {
+	flora.Configuration
+}
+
+//flora:primary
+func (c *ClientConfig) ProvideClient() *fasthttp.Client {
 	return &fasthttp.Client{}
+}
+
+type LoggerConfig struct {
+	flora.Configuration
+}
+
+//flora:primary
+func (loggerCfg *LoggerConfig) ProvideLoggerConfig(cfg *config.Config) log2.LoggerConfig {
+	return cfg.Logs
 }

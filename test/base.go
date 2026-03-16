@@ -1,7 +1,13 @@
 package test
 
 import (
+	"BaseProjectGolang/internal/bootstrap"
+	"BaseProjectGolang/internal/config"
 	common "BaseProjectGolang/internal/constant"
+	"BaseProjectGolang/internal/http/middleware/authmdl"
+	"BaseProjectGolang/internal/infrastructure/database"
+	"BaseProjectGolang/pkg/crypto"
+	logUtil "BaseProjectGolang/pkg/log"
 	"context"
 	"crypto/rand"
 	"encoding/json"
@@ -13,14 +19,6 @@ import (
 	"runtime"
 	"strconv"
 	"testing"
-
-	"BaseProjectGolang/internal/bootstrap"
-	"BaseProjectGolang/internal/config"
-	appDependency "BaseProjectGolang/internal/dependency/app"
-	"BaseProjectGolang/internal/http/middleware/auth"
-	"BaseProjectGolang/internal/infrastructure/database"
-	"BaseProjectGolang/pkg/crypto"
-	logUtil "BaseProjectGolang/pkg/log"
 
 	factoryLib "github.com/bluele/factory-go/factory"
 	"github.com/dromara/carbon/v2"
@@ -43,7 +41,7 @@ func InitCfg(t *testing.T, envConfig ...string) (cfg *config.Config, err error) 
 		t.Error(err)
 	}
 
-	cfg, err = config.LoadConfig(true, envConfig...)
+	cfg, err = config.NewConfig(true, envConfig...)
 	if err != nil {
 		t.Error(err)
 	}
@@ -53,17 +51,17 @@ func InitCfg(t *testing.T, envConfig ...string) (cfg *config.Config, err error) 
 
 // GetDefaultAppTest Инициализация дефолтного инстанса аpp для использования в тестах
 func GetDefaultAppTest(t *testing.T, configWebServiceData *string) (newApp *bootstrap.App, cfg *config.Config) {
-	var (
-		configPath string
-	)
-
-	cfg, _ = InitCfg(t, "test.env", configPath)
-	db := InitializeAndCleanDatabaseAfterTest(t, cfg)
-
-	newApp, err := appDependency.InitializeApp(cfg, db)
-	if err != nil {
-		t.Error(err)
-	}
+	//var (
+	//	configPath string
+	//)
+	//
+	//cfg, _ = InitCfg(t, "test.env", configPath)
+	//db := InitializeAndCleanDatabaseAfterTest(t, cfg)
+	//
+	//newApp, err := appDependency.InitializeApp(cfg, db)
+	//if err != nil {
+	//	t.Error(err)
+	//}
 
 	return
 }
@@ -86,7 +84,7 @@ func CreateObjectInTestDatabaseFromFactory(
 
 // InitializeAndCleanDatabaseAfterTest Откатывает транзакцию и возвращает базу в изначальное состояние
 func InitializeAndCleanDatabaseAfterTest(t *testing.T, cfg *config.Config) *database.DataBase {
-	logger := logUtil.InitLogger(cfg.Logs)
+	logger := logUtil.NewLogger(cfg.Logs)
 
 	DB, err := database.NewDataBase(cfg, logger)
 	if err != nil {
@@ -133,7 +131,7 @@ func SetAuthForRequest(
 		body = &newBody
 	}
 
-	publicKey, err := auth.FormPublicKey(query, *body, int(signatureTimestamp))
+	publicKey, err := authmdl.FormPublicKey(query, *body, int(signatureTimestamp))
 	if err != nil {
 		t.Fatal(err)
 	}

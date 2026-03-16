@@ -1,35 +1,36 @@
-package auth
+package authmdl
 
 import (
+	"BaseProjectGolang/internal/config"
 	common "BaseProjectGolang/internal/constant"
+	"BaseProjectGolang/internal/infrastructure/database"
+	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"context"
 	"errors"
 	"net/http"
 
-	"BaseProjectGolang/internal/config"
-	"BaseProjectGolang/internal/infrastructure/database"
-	userModel "BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
-
 	"github.com/gofiber/fiber/v3"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 	"gorm.io/gorm"
 )
 
 type JwtAddAuthUserInCtx struct {
+	flora.Component
 	db  *database.DataBase
 	cfg *config.Config
 }
 
 func NewJwtAddAuthUserInCtx(db *database.DataBase, cfg *config.Config) *JwtAddAuthUserInCtx {
 	return &JwtAddAuthUserInCtx{
-		db,
-		cfg,
+		db:  db,
+		cfg: cfg,
 	}
 }
 
 func (jwtAddAuthUserInCtx *JwtAddAuthUserInCtx) AddAuthUserInCtx(ctx fiber.Ctx) (err error) {
-	userCtx := ctx.Locals("user").(*jwt.Token)
+	userCtx := ctx.Locals("userdmn").(*jwt.Token)
 	claimsObj := userCtx.Claims.(jwt.MapClaims)
 	authorizedUser := &userModel.User{}
 	oAuthAccessToken := &userModel.OAuthAccessToken{}

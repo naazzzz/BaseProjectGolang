@@ -1,10 +1,9 @@
 package config
 
 import (
+	"BaseProjectGolang/pkg/mail"
 	"fmt"
 	"log"
-
-	"BaseProjectGolang/pkg/mail"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
@@ -31,7 +30,7 @@ type Config struct {
 	Mail        *mail.GomailServiceConfig
 }
 
-func LoadConfig(isTest bool, envFile ...string) (*Config, error) {
+func NewConfig(isTest bool, envFile ...string) (*Config, error) {
 	var (
 		config Config
 		err    error

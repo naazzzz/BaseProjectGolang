@@ -1,17 +1,18 @@
 package command
 
 import (
+	"BaseProjectGolang/internal/config"
+	internallog "BaseProjectGolang/pkg/log"
 	"context"
 	"log"
 	"sync"
 
-	"BaseProjectGolang/internal/config"
-	internallog "BaseProjectGolang/pkg/log"
-
 	"github.com/robfig/cron/v3"
+	"github.com/soner3/flora"
 )
 
 type Scheduler struct {
+	flora.Component
 	cfg          *config.Config
 	CronInstance *cron.Cron
 	cancelFunc   context.CancelFunc

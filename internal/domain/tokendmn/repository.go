@@ -1,7 +1,7 @@
-package token
+package tokendmn
 
 import (
-	"BaseProjectGolang/internal/domain/user"
+	"BaseProjectGolang/internal/domain/userdmn"
 	"context"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -10,5 +10,5 @@ import (
 type ITokenRepository interface {
 	Create(ctx context.Context, token *AccessToken) error
 	RevokeByClaims(ctx context.Context, claims jwt.MapClaims) error
-	DeleteByUser(ctx context.Context, userObj *user.User) error
+	DeleteByUser(ctx context.Context, userObj *userdmn.User) error
 }

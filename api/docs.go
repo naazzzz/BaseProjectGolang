@@ -97,7 +97,7 @@ const docTemplate = `{
                 "expires_at": {
                     "type": "string"
                 },
-                "token": {
+                "tokendmn": {
                     "type": "string"
                 },
                 "token_type": {

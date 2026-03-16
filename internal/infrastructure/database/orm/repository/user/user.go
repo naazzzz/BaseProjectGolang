@@ -2,7 +2,9 @@ package user
 
 import (
 	common "BaseProjectGolang/internal/constant"
-	domainUser "BaseProjectGolang/internal/domain/user"
+	domainUser "BaseProjectGolang/internal/domain/userdmn"
+	errorHandler "BaseProjectGolang/internal/http/error"
+	"BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 	"BaseProjectGolang/internal/infrastructure/database/query"
 	"BaseProjectGolang/pkg/converter"
 	"context"
@@ -10,15 +12,14 @@ import (
 	"net/http"
 	"time"
 
-	errorHandler "BaseProjectGolang/internal/http/error"
-	"BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
-
 	"github.com/gofiber/fiber/v3"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 	"gorm.io/gorm"
 )
 
 type Repository struct {
+	flora.Component `flora:"constructor=NewUserRepository"`
 }
 
 func NewUserRepository() *Repository {
@@ -99,7 +100,7 @@ func (userRepository *Repository) Delete(
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				err = eris.Wrap(&fiber.Error{Code: fiber.StatusNotFound, Message: err.Error()}, "Record not found")
 			} else {
-				err = eris.Wrap(err, "Can't get user ID after soft delete")
+				err = eris.Wrap(err, "Can't get userdmn ID after soft delete")
 			}
 
 			return
@@ -109,7 +110,7 @@ func (userRepository *Repository) Delete(
 			Model(&userModel.User{}).
 			Where("username = ?", username).
 			Update("expiration_date", time.Now()); tx.Error != nil {
-			err = eris.Wrap(err, "Can't get user from DBState")
+			err = eris.Wrap(err, "Can't get userdmn from DBState")
 			return
 		} else if tx.RowsAffected == 0 {
 			err = eris.Wrap(&fiber.Error{Code: fiber.StatusNotFound, Message: err.Error()}, "Record not found")
@@ -127,7 +128,7 @@ func (userRepository *Repository) Delete(
 
 			return
 		} else if err != nil {
-			err = eris.Wrap(err, "Can't get user from DBState")
+			err = eris.Wrap(err, "Can't get userdmn from DBState")
 			return
 		}
 
@@ -137,7 +138,7 @@ func (userRepository *Repository) Delete(
 		if tx := qb.Original.
 			Unscoped().
 			Delete(oldUserModel); tx.Error != nil {
-			err = eris.Wrap(err, "Can't get user from DBState")
+			err = eris.Wrap(err, "Can't get userdmn from DBState")
 			return
 		} else if tx.RowsAffected == 0 {
 			err = eris.Wrap(&fiber.Error{Code: fiber.StatusNotFound, Message: err.Error()}, "Record not found")

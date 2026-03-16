@@ -1,7 +1,7 @@
-package delete
+package update
 
 import (
-	domainUser "BaseProjectGolang/internal/domain/user"
+	domainUser "BaseProjectGolang/internal/domain/userdmn"
 	"context"
 )
 
@@ -22,9 +22,13 @@ func (h *Handler) Execute(
 	cmd *Command,
 ) error {
 
-	return h.userRepository.Delete(
-		ctx,
-		cmd.Username,
-		cmd.Force,
-	)
+	user, err := h.userRepository.GetByUsername(ctx, cmd.Username)
+	if err != nil {
+		return err
+	}
+
+	user.Username = cmd.NewUser.Username
+	user.Password = cmd.NewUser.Password
+
+	return h.userRepository.Update(ctx, user)
 }

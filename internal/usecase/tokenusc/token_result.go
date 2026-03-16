@@ -1,4 +1,4 @@
-package token
+package tokenusc
 
 type Result struct {
 	Token     string

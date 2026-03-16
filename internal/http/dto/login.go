@@ -6,13 +6,13 @@ type LoginRequest struct {
 }
 
 type DataLoginResponse struct {
-	Token     string `json:"token"`
+	Token     string `json:"tokendmn"`
 	TokenType string `json:"token_type"`
 	ExpiresAt string `json:"expires_at"`
 }
 
 type TokenInfo struct {
-	Token     string `json:"token"`
+	Token     string `json:"tokendmn"`
 	TokenType string `json:"token_type"`
 	ExpiresAt string `json:"expires_at"`
 }

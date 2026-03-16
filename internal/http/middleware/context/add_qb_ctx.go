@@ -6,9 +6,11 @@ import (
 	"BaseProjectGolang/internal/infrastructure/database/query"
 
 	"github.com/gofiber/fiber/v3"
+	"github.com/soner3/flora"
 )
 
 type SetupCtxQB struct {
+	flora.Component
 	db *database.DataBase
 }
 

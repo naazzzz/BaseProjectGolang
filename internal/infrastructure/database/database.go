@@ -5,6 +5,7 @@ import (
 	"BaseProjectGolang/internal/infrastructure/database/driver"
 	logInternal "BaseProjectGolang/pkg/log"
 
+	"github.com/soner3/flora"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +15,7 @@ type (
 	}
 
 	DataBase struct {
+		flora.Component
 		DatabaseDriver Driver
 	}
 )

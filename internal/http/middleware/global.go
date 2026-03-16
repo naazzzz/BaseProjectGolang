@@ -1,19 +1,20 @@
 package middleware
 
 import (
-	"fmt"
-
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/infrastructure/database"
+	"fmt"
 
 	"github.com/dromara/carbon/v2"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"
 	"github.com/gofiber/fiber/v3/middleware/static"
+	"github.com/soner3/flora"
 )
 
 type GlobalMiddleware struct {
+	flora.Component
 	cfg *config.Config
 	db  *database.DataBase
 }
@@ -23,8 +24,8 @@ func NewGlobalMiddleware(
 	db *database.DataBase,
 ) *GlobalMiddleware {
 	return &GlobalMiddleware{
-		cfg,
-		db,
+		cfg: cfg,
+		db:  db,
 	}
 }
 

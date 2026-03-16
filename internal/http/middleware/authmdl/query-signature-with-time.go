@@ -1,14 +1,13 @@
-package auth
+package authmdl
 
 import (
+	"BaseProjectGolang/internal/config"
 	common "BaseProjectGolang/internal/constant"
+	cryptoUtil "BaseProjectGolang/pkg/crypto"
 	"encoding/json"
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"BaseProjectGolang/internal/config"
-	cryptoUtil "BaseProjectGolang/pkg/crypto"
 
 	"github.com/dromara/carbon/v2"
 	"github.com/gofiber/fiber/v3"

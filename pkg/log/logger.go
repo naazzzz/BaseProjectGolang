@@ -11,6 +11,7 @@ import (
 
 	fiberlog "github.com/gofiber/fiber/v2/log"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
@@ -33,11 +34,54 @@ type LoggerConfig interface {
 }
 
 type Logger struct {
+	flora.Component
 	Logger     *log.Logger
 	Writer     io.Writer
 	lumberjack *lumberjack.Logger // Сохраняем ссылку на lumberjack
 
 	level int
+}
+
+func NewLogger(cfg LoggerConfig) *Logger {
+	filename := "./" + cfg.GetDirSave() + "/" + cfg.GetFilename()
+
+	maxSize, err := strconv.Atoi(cfg.GetMaxSize())
+	if err != nil {
+		log.Println(err)
+	}
+
+	maxBackups, err := strconv.Atoi(cfg.GetMaxBackups())
+	if err != nil {
+		log.Println(err)
+	}
+
+	maxAge, err := strconv.Atoi(cfg.GetLifeTime())
+	if err != nil {
+		log.Println(err)
+	}
+
+	lumberjackLogger := &lumberjack.Logger{
+		Filename:   filename,
+		MaxSize:    maxSize,
+		MaxBackups: maxBackups,
+		MaxAge:     maxAge,
+	}
+
+	// Создаем мультирайтер, который будет писать и в файл, и в консоль
+	multiWriter := io.MultiWriter(lumberjackLogger, os.Stdout)
+
+	// Создаем новый логгер с мультирайтером
+	logger := log.New(multiWriter, "", log.LstdFlags)
+
+	internalLogger := &Logger{
+		Logger:     logger,
+		Writer:     multiWriter,
+		lumberjack: lumberjackLogger, // Сохраняем ссылку
+	}
+
+	fiberlog.SetLogger(internalLogger)
+
+	return internalLogger
 }
 
 func (lgr *Logger) logf(lvl int, format string, v ...interface{}) {
@@ -211,48 +255,6 @@ func (lgr *Logger) WithContext(ctx context.Context) fiberlog.CommonLogger {
 	// Можно добавить поля из контекста, если они есть
 	// пока просто возвращаем тот же логгер
 	return lgr
-}
-
-func InitLogger(cfg LoggerConfig) *Logger {
-	filename := "./" + cfg.GetDirSave() + "/" + cfg.GetFilename()
-
-	maxSize, err := strconv.Atoi(cfg.GetMaxSize())
-	if err != nil {
-		log.Println(err)
-	}
-
-	maxBackups, err := strconv.Atoi(cfg.GetMaxBackups())
-	if err != nil {
-		log.Println(err)
-	}
-
-	maxAge, err := strconv.Atoi(cfg.GetLifeTime())
-	if err != nil {
-		log.Println(err)
-	}
-
-	lumberjackLogger := &lumberjack.Logger{
-		Filename:   filename,
-		MaxSize:    maxSize,
-		MaxBackups: maxBackups,
-		MaxAge:     maxAge,
-	}
-
-	// Создаем мультирайтер, который будет писать и в файл, и в консоль
-	multiWriter := io.MultiWriter(lumberjackLogger, os.Stdout)
-
-	// Создаем новый логгер с мультирайтером
-	logger := log.New(multiWriter, "", log.LstdFlags)
-
-	internalLogger := &Logger{
-		Logger:     logger,
-		Writer:     multiWriter,
-		lumberjack: lumberjackLogger, // Сохраняем ссылку
-	}
-
-	fiberlog.SetLogger(internalLogger)
-
-	return internalLogger
 }
 
 func (lgr *Logger) CloseLogger() error {

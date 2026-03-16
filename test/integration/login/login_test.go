@@ -1,15 +1,14 @@
 package login
 
 import (
+	"BaseProjectGolang/internal/http/dto"
+	"BaseProjectGolang/test"
+	"BaseProjectGolang/test/trait"
 	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
 	"testing"
-
-	"BaseProjectGolang/internal/http/dto"
-	"BaseProjectGolang/test"
-	"BaseProjectGolang/test/trait"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/stretchr/testify/assert"
@@ -47,7 +46,7 @@ func TestLoginSuccess(t *testing.T) {
 	}
 
 	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	assert.Contains(t, bodyMap, "token")
+	assert.Contains(t, bodyMap, "tokendmn")
 	assert.Contains(t, bodyMap, "token_type")
 	assert.Contains(t, bodyMap, "expires_at")
 }

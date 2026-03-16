@@ -2,32 +2,34 @@ package login
 
 import (
 	"BaseProjectGolang/internal/config"
-	token2 "BaseProjectGolang/internal/domain/token"
-	"BaseProjectGolang/internal/domain/user"
-	"BaseProjectGolang/internal/usecase/token"
-	"BaseProjectGolang/internal/usecase/token/access/create"
+	token2 "BaseProjectGolang/internal/domain/tokendmn"
+	"BaseProjectGolang/internal/domain/userdmn"
+	"BaseProjectGolang/internal/usecase/tokenusc"
+	"BaseProjectGolang/internal/usecase/tokenusc/access/create"
 	"context"
 	"errors"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/rotisserie/eris"
+	"github.com/soner3/flora"
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Handler struct {
-	userRepository    user.IUserRepository
+type LoginHandler struct {
+	flora.Component
+	userRepository    userdmn.IUserRepository
 	tokenRepository   token2.ITokenRepository
-	createAccessToken *create.Handler
+	createAccessToken *create.CreateAccessTokenHandler
 	cfg               *config.Config
 }
 
 func NewLoginHandler(
 	cfg *config.Config,
-	userRepository user.IUserRepository,
+	userRepository userdmn.IUserRepository,
 	tokenRepository token2.ITokenRepository,
-	createAccessToken *create.Handler,
-) *Handler {
-	authService := &Handler{
+	createAccessToken *create.CreateAccessTokenHandler,
+) *LoginHandler {
+	authService := &LoginHandler{
 		cfg:               cfg,
 		userRepository:    userRepository,
 		tokenRepository:   tokenRepository,
@@ -37,10 +39,10 @@ func NewLoginHandler(
 	return authService
 }
 
-func (handler *Handler) Execute(
+func (handler *LoginHandler) Execute(
 	ctx context.Context,
 	cmd *Command,
-) (tokenInfo *token.Result, err error) {
+) (tokenInfo *tokenusc.Result, err error) {
 	userObj, err := handler.userRepository.GetByUsername(ctx, cmd.Username)
 	if err != nil {
 		return nil, err

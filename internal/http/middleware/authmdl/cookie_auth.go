@@ -1,4 +1,4 @@
-package auth
+package authmdl
 
 import "github.com/gofiber/fiber/v3"
 

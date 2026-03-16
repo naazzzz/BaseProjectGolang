@@ -1,8 +1,12 @@
 package main
 
 import (
-	"BaseProjectGolang/internal/dependency"
-	appDependency "BaseProjectGolang/internal/dependency/app"
+	"BaseProjectGolang/internal/dependency/app"
+	"context"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
 	_ "github.com/lib/pq"
 )
@@ -15,14 +19,16 @@ import (
 // @in							header
 // @name						Authorization
 func main() {
-	db, cfg := dependency.InitServicesBeforeDi()
-
-	fiberInstance, err := appDependency.InitializeApp(cfg, db)
+	container, _, err := app.InitializeContainer()
 	if err != nil {
-		panic(err)
+		log.Fatalf(err.Error())
 	}
 
-	if err = fiberInstance.Run(); err != nil {
-		panic(err)
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if err = container.App.Run(ctx); err != nil {
+		log.Fatalf(err.Error())
+		return
 	}
 }

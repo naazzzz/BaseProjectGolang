@@ -15,9 +15,9 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/login": {
+        "/api/example": {
             "post": {
-                "description": "Login endpoint",
+                "description": "Example endpoint",
                 "consumes": [
                     "application/json"
                 ],
@@ -25,17 +25,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Login"
+                    "Example"
                 ],
-                "summary": "Login endpoint",
+                "summary": "Example endpoint",
                 "parameters": [
                     {
                         "description": "Dto для логина",
-                        "name": "dto.LoginRequest",
+                        "name": "dto.ExampleRequest",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.LoginRequest"
+                            "$ref": "#/definitions/dto.ExampleRequest"
                         }
                     }
                 ],
@@ -43,41 +43,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.DataLoginResponse"
-                        }
-                    },
-                    "default": {
-                        "description": "The body of any response with an error",
-                        "schema": {
-                            "$ref": "#/definitions/error.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/logout": {
-            "get": {
-                "security": [
-                    {
-                        "BearerToken": []
-                    }
-                ],
-                "description": "Logout endpoint",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Logout"
-                ],
-                "summary": "Logout endpoint",
-                "responses": {
-                    "200": {
-                        "description": "message: Successfully logged out.",
-                        "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/dto.ExampleResponse"
                         }
                     },
                     "default": {
@@ -91,34 +57,19 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.DataLoginResponse": {
+        "dto.ExampleRequest": {
             "type": "object",
             "properties": {
-                "expires_at": {
-                    "type": "string"
-                },
-                "tokendmn": {
-                    "type": "string"
-                },
-                "token_type": {
+                "example_data": {
                     "type": "string"
                 }
             }
         },
-        "dto.LoginRequest": {
+        "dto.ExampleResponse": {
             "type": "object",
-            "required": [
-                "password",
-                "username"
-            ],
             "properties": {
-                "password": {
-                    "type": "string",
-                    "minLength": 3
-                },
-                "username": {
-                    "type": "string",
-                    "maxLength": 191
+                "example_data": {
+                    "type": "string"
                 }
             }
         },

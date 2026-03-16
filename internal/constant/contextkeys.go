@@ -11,7 +11,7 @@ const (
 	PaginationCtxKey contextKey = "pagination"
 )
 
-// константы из кода(query, header)
+// константы из кода(querybuilder, header)
 const (
 	ServiceConfigsCtxKey        string = "service_configs"
 	UsernameParamsKey           string = "username"

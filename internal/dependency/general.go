@@ -3,9 +3,8 @@ package dependency
 import (
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/http/controller"
-	"BaseProjectGolang/internal/http/controller/authctr"
+	"BaseProjectGolang/internal/http/controller/examplectr"
 	"BaseProjectGolang/internal/http/middleware"
-	authMiddleware "BaseProjectGolang/internal/http/middleware/authmdl"
 	"BaseProjectGolang/internal/http/middleware/context"
 	log2 "BaseProjectGolang/pkg/log"
 	"log"
@@ -16,28 +15,24 @@ import (
 
 type Handlers struct {
 	flora.Component
-	BaseController *controller.BaseController
-	// SwaggerController          *global.SwaggerController
-	AuthController *authctr.Controller
+	BaseController    *controller.BaseController
+	ExampleController *examplectr.ExampleController
 
 	GlobalMiddleware *middleware.GlobalMiddleware
-	AuthMiddleware   *authMiddleware.JwtAddAuthUserInCtx
 	SetupCtxQB       *context.SetupCtxQB
 }
 
 func NewHandlers(
 	globalMiddleware *middleware.GlobalMiddleware,
-	authMiddleware *authMiddleware.JwtAddAuthUserInCtx,
 	baseController *controller.BaseController,
 	setupCtxQB *context.SetupCtxQB,
-	authController *authctr.Controller,
+	authController *examplectr.ExampleController,
 ) *Handlers {
 	return &Handlers{
-		BaseController:   baseController,
-		GlobalMiddleware: globalMiddleware,
-		AuthMiddleware:   authMiddleware,
-		SetupCtxQB:       setupCtxQB,
-		AuthController:   authController,
+		BaseController:    baseController,
+		GlobalMiddleware:  globalMiddleware,
+		SetupCtxQB:        setupCtxQB,
+		ExampleController: authController,
 	}
 }
 

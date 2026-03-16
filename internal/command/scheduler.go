@@ -47,7 +47,7 @@ func (scheduler *Scheduler) Schedule(ctx context.Context) {
 
 	scheduler.running = true
 
-	// Create cancellable context
+	// Example cancellable context
 	ctx, scheduler.cancelFunc = context.WithCancel(ctx)
 	scheduler.mu.Unlock()
 

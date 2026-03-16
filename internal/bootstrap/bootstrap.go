@@ -12,8 +12,6 @@ import (
 	"BaseProjectGolang/pkg/log"
 	"context"
 	"encoding/json"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/gofiber/fiber/v3"
@@ -130,16 +128,6 @@ func (app *App) setUpDefaultInstance() {
 		JSONDecoder:  json.Unmarshal,
 		AppName:      app.Config.AppWorkMode,
 	})
-}
-
-// getTemplatePath returns the path to the templates directory
-func getTemplatePath() string {
-	wd, err := os.Getwd()
-	if err != nil {
-		wd = "."
-	}
-
-	return filepath.Join(wd, "web", "views", "templates")
 }
 
 // setUpGlobalMiddleware sets up global middleware for Fiber instance

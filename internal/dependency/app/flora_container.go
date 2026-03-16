@@ -12,16 +12,13 @@ import (
 	"BaseProjectGolang/internal/config"
 	"BaseProjectGolang/internal/dependency"
 	"BaseProjectGolang/internal/http/controller"
-	"BaseProjectGolang/internal/http/controller/authctr"
+	"BaseProjectGolang/internal/http/controller/examplectr"
 	"BaseProjectGolang/internal/http/middleware"
-	"BaseProjectGolang/internal/http/middleware/authmdl"
 	"BaseProjectGolang/internal/http/middleware/context"
 	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/internal/infrastructure/database/orm/plugin"
-	"BaseProjectGolang/internal/infrastructure/database/orm/repository/token"
-	"BaseProjectGolang/internal/infrastructure/database/orm/repository/user"
-	"BaseProjectGolang/internal/usecase/tokenusc/access/create"
-	"BaseProjectGolang/internal/usecase/userusc/auth/login"
+	"BaseProjectGolang/internal/infrastructure/database/orm/repository/examplerep"
+	"BaseProjectGolang/internal/usecase/exampleusc"
 	"BaseProjectGolang/internal/validation"
 	"BaseProjectGolang/pkg/fasthttpmock"
 	"BaseProjectGolang/pkg/log"
@@ -36,21 +33,18 @@ func InitializeContainer() (*FloraContainer, func(), error) {
 	logger := log.NewLogger(loggerConfig)
 	scheduler := command.NewScheduler(config, logger)
 	baseController := controller.NewBaseController(config)
+	exampleRepository := examplerep.NewExampleRepository()
+	exampleHandler := exampleusc.NewExampleHandler(config, exampleRepository)
+	xValidator := validation.NewXValidator(config)
+	exampleController := examplectr.NewExampleController(baseController, exampleHandler, xValidator)
 	dataBase, err := database.NewDataBase(config, logger)
 	if err != nil {
 		return nil, nil, err
 	}
-	repository := user.NewUserRepository()
-	accessTokenRepository := token.NewAccessTokenRepository()
-	createAccessTokenHandler := create.NewCreateAccessTokenHandler(config, repository, accessTokenRepository)
-	loginHandler := login.NewLoginHandler(config, repository, accessTokenRepository, createAccessTokenHandler)
-	xValidator := validation.NewXValidator(config)
-	authctrController := authctr.NewAuthController(baseController, loginHandler, xValidator, repository, accessTokenRepository)
 	globalMiddleware := middleware.NewGlobalMiddleware(config, dataBase)
-	jwtAddAuthUserInCtx := authmdl.NewJwtAddAuthUserInCtx(dataBase, config)
 	setupCtxQB := context.NewSetupCtxQB(dataBase)
 	client := Provide_ClientConfig_ProvideClient()
-	handlers := dependency.NewHandlers(globalMiddleware, jwtAddAuthUserInCtx, baseController, setupCtxQB, authctrController)
+	handlers := dependency.NewHandlers(globalMiddleware, baseController, setupCtxQB, exampleController)
 	registrationPlugin := plugin.NewRegistrationPlugin(dataBase)
 	wrapClient := fasthttpmock.NewWrapClient(client)
 	app, err := bootstrap.NewApp(config, handlers, dataBase, scheduler, wrapClient, logger, registrationPlugin)
@@ -58,26 +52,23 @@ func InitializeContainer() (*FloraContainer, func(), error) {
 		return nil, nil, err
 	}
 	floraContainer := &FloraContainer{
-		Logger:                   logger,
-		Scheduler:                scheduler,
-		BaseController:           baseController,
-		DataBase:                 dataBase,
-		CreateAccessTokenHandler: createAccessTokenHandler,
-		LoginHandler:             loginHandler,
-		XValidator:               xValidator,
-		Controller:               authctrController,
-		GlobalMiddleware:         globalMiddleware,
-		JwtAddAuthUserInCtx:      jwtAddAuthUserInCtx,
-		SetupCtxQB:               setupCtxQB,
-		Client:                   client,
-		Handlers:                 handlers,
-		LoggerConfig:             loggerConfig,
-		Config:                   config,
-		RegistrationPlugin:       registrationPlugin,
-		WrapClient:               wrapClient,
-		App:                      app,
-		AccessTokenRepository:    accessTokenRepository,
-		Repository:               repository,
+		Logger:             logger,
+		Scheduler:          scheduler,
+		BaseController:     baseController,
+		ExampleHandler:     exampleHandler,
+		XValidator:         xValidator,
+		ExampleController:  exampleController,
+		DataBase:           dataBase,
+		GlobalMiddleware:   globalMiddleware,
+		SetupCtxQB:         setupCtxQB,
+		Client:             client,
+		Handlers:           handlers,
+		LoggerConfig:       loggerConfig,
+		Config:             config,
+		RegistrationPlugin: registrationPlugin,
+		WrapClient:         wrapClient,
+		App:                app,
+		ExampleRepository:  exampleRepository,
 	}
 	return floraContainer, func() {
 	}, nil
@@ -116,19 +107,15 @@ type FloraContainer struct {
 
 	BaseController *controller.BaseController
 
-	DataBase *database.DataBase
-
-	CreateAccessTokenHandler *create.CreateAccessTokenHandler
-
-	LoginHandler *login.LoginHandler
+	ExampleHandler *exampleusc.ExampleHandler
 
 	XValidator *validation.XValidator
 
-	Controller *authctr.Controller
+	ExampleController *examplectr.ExampleController
+
+	DataBase *database.DataBase
 
 	GlobalMiddleware *middleware.GlobalMiddleware
-
-	JwtAddAuthUserInCtx *authmdl.JwtAddAuthUserInCtx
 
 	SetupCtxQB *context.SetupCtxQB
 
@@ -146,7 +133,5 @@ type FloraContainer struct {
 
 	App *bootstrap.App
 
-	AccessTokenRepository *token.AccessTokenRepository
-
-	Repository *user.Repository
+	ExampleRepository *examplerep.ExampleRepository
 }

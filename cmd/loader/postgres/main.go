@@ -1,11 +1,10 @@
 package main
 
 import (
+	"BaseProjectGolang/internal/infrastructure/database/orm/model/examplemdl"
 	"fmt"
 	"io"
 	"os"
-
-	"BaseProjectGolang/internal/infrastructure/database/orm/model/userModel"
 
 	"ariga.io/atlas-provider-gorm/gormschema"
 )
@@ -13,8 +12,7 @@ import (
 func main() {
 	// TODO что-то с этим сделать (подумать над вариантом через рефлексию цеплять структуры через файлы в папке models)
 	models := []any{
-		userModel.OAuthAccessToken{},
-		userModel.User{},
+		examplemdl.ExampleModel{},
 	}
 
 	stmts, err := gormschema.New("postgres").Load(models...)

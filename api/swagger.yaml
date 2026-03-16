@@ -1,25 +1,14 @@
 basePath: /api
 definitions:
-  dto.DataLoginResponse:
+  dto.ExampleRequest:
     properties:
-      expires_at:
-        type: string
-      token:
-        type: string
-      token_type:
+      example_data:
         type: string
     type: object
-  dto.LoginRequest:
+  dto.ExampleResponse:
     properties:
-      password:
-        minLength: 3
+      example_data:
         type: string
-      username:
-        maxLength: 191
-        type: string
-    required:
-    - password
-    - username
     type: object
   error.HTTPError:
     properties:
@@ -41,53 +30,32 @@ info:
   title: Monitoring service
   version: "1.0"
 paths:
-  /api/login:
+  /api/example:
     post:
       consumes:
       - application/json
-      description: Login endpoint
+      description: Example endpoint
       parameters:
       - description: Dto для логина
         in: body
-        name: dto.LoginRequest
+        name: dto.ExampleRequest
         required: true
         schema:
-          $ref: '#/definitions/dto.LoginRequest'
+          $ref: '#/definitions/dto.ExampleRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/dto.DataLoginResponse'
+            $ref: '#/definitions/dto.ExampleResponse'
         default:
           description: The body of any response with an error
           schema:
             $ref: '#/definitions/error.HTTPError'
-      summary: Login endpoint
+      summary: Example endpoint
       tags:
-      - Login
-  /api/logout:
-    get:
-      consumes:
-      - application/json
-      description: Logout endpoint
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 'message: Successfully logged out.'
-          schema:
-            type: string
-        default:
-          description: The body of any response with an error
-          schema:
-            $ref: '#/definitions/error.HTTPError'
-      security:
-      - BearerToken: []
-      summary: Logout endpoint
-      tags:
-      - Logout
+      - Example
 securityDefinitions:
   BearerAuth:
     in: header

@@ -4,24 +4,22 @@ import (
 	"BaseProjectGolang/internal/bootstrap"
 	"BaseProjectGolang/internal/config"
 	common "BaseProjectGolang/internal/constant"
-	"BaseProjectGolang/internal/http/middleware/authmdl"
+	"BaseProjectGolang/internal/dependency/app"
 	"BaseProjectGolang/internal/infrastructure/database"
 	"BaseProjectGolang/pkg/crypto"
 	logUtil "BaseProjectGolang/pkg/log"
 	"context"
 	"crypto/rand"
 	"encoding/json"
+	"log"
 	"math/big"
 	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"runtime"
-	"strconv"
 	"testing"
 
 	factoryLib "github.com/bluele/factory-go/factory"
-	"github.com/dromara/carbon/v2"
 	"gorm.io/gorm"
 )
 
@@ -51,17 +49,21 @@ func InitCfg(t *testing.T, envConfig ...string) (cfg *config.Config, err error) 
 
 // GetDefaultAppTest Инициализация дефолтного инстанса аpp для использования в тестах
 func GetDefaultAppTest(t *testing.T, configWebServiceData *string) (newApp *bootstrap.App, cfg *config.Config) {
-	//var (
-	//	configPath string
-	//)
-	//
-	//cfg, _ = InitCfg(t, "test.env", configPath)
-	//db := InitializeAndCleanDatabaseAfterTest(t, cfg)
-	//
-	//newApp, err := appDependency.InitializeApp(cfg, db)
-	//if err != nil {
-	//	t.Error(err)
-	//}
+	var (
+		configPath string
+	)
+
+	cfg, _ = InitCfg(t, "test.env", configPath)
+	db := InitializeAndCleanDatabaseAfterTest(t, cfg)
+
+	container, _, err := app.InitializeContainer()
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	container.Config = cfg
+	container.DataBase = db
+	newApp = container.App
 
 	return
 }
@@ -104,46 +106,6 @@ func InitializeAndCleanDatabaseAfterTest(t *testing.T, cfg *config.Config) *data
 	})
 
 	return DB
-}
-
-func SetAuthForRequest(
-	t *testing.T,
-	req *http.Request,
-	queryValues url.Values,
-	body *[]byte,
-	time *carbon.Carbon,
-	cfg *config.Config,
-) {
-	query, err := url.ParseQuery(req.URL.RawQuery)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if time == nil {
-		timeNow := carbon.Now()
-		time = timeNow
-	}
-
-	signatureTimestamp := time.Timestamp()
-
-	if body == nil {
-		newBody := []byte("")
-		body = &newBody
-	}
-
-	publicKey, err := authmdl.FormPublicKey(query, *body, int(signatureTimestamp))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	publicKeyMd5 := crypto.GetMD5Hash(publicKey)
-
-	signature := crypto.EncodeHmacSha256(cfg.Secure.AuthPrivateKey, publicKeyMd5)
-
-	queryValues.Set("signature", signature)
-	queryValues.Set("signature_timestamp", strconv.FormatInt(signatureTimestamp, 10))
-
-	req.URL.RawQuery = queryValues.Encode()
 }
 
 func RandStringRunes(n int) string {

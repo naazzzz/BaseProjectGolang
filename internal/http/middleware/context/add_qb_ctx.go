@@ -3,7 +3,7 @@ package context
 import (
 	common "BaseProjectGolang/internal/constant"
 	"BaseProjectGolang/internal/infrastructure/database"
-	"BaseProjectGolang/internal/infrastructure/database/query"
+	"BaseProjectGolang/pkg/querybuilder"
 
 	"github.com/gofiber/fiber/v3"
 	"github.com/soner3/flora"
@@ -32,13 +32,13 @@ func NewSetupCtxQB(db *database.DataBase) *SetupCtxQB {
 // // Использование всех модификаторов
 //
 //	app.Get("/items/full", func(c fiber.Ctx) error {
-//	    builder := ctx.Locals(common.QbCtxKey).(*query.Builder)
+//	    builder := ctx.Locals(common.QbCtxKey).(*querybuilder.Builder)
 //	    return builder.DefaultQueryBuilderMiddleware(c)
 //	}, handler)
 //
 //	// Использование только сортировки
 //	app.Get("/items/sort", func(c fiber.Ctx) error {
-//	    builder := ctx.Locals(common.QbCtxKey).(*query.Builder)
+//	    builder := ctx.Locals(common.QbCtxKey).(*querybuilder.Builder)
 //	    return builder.CustomQueryBuilderMiddleware(c, MiddlewareOptions{
 //	        UseSort: true,
 //	    })
@@ -68,7 +68,7 @@ func (m *SetupCtxQB) DefaultQueryBuilderMiddleware(ctx fiber.Ctx) error {
 //	    })
 //	}, handler)
 func (m *SetupCtxQB) CustomQueryBuilderMiddleware(ctx fiber.Ctx, opts MiddlewareOptions) error {
-	qb := query.NewBuilder(m.db)
+	qb := querybuilder.NewBuilder(m.db)
 
 	if ctx.Method() != fiber.MethodGet {
 		ctx.Locals(common.QbCtxKey, qb)

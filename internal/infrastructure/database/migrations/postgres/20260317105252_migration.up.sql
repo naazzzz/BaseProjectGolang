@@ -9,3 +9,14 @@ CREATE TABLE "example_models" (
 );
 -- create index "idx_example_models_deleted_at" to table: "example_models"
 CREATE INDEX "idx_example_models_deleted_at" ON "example_models" ("deleted_at");
+-- create "test_models" table
+CREATE TABLE "test_models" (
+  "id" bigserial NOT NULL,
+  "created_at" timestamptz NULL,
+  "updated_at" timestamptz NULL,
+  "deleted_at" timestamptz NULL,
+  "name" text NULL,
+  PRIMARY KEY ("id")
+);
+-- create index "idx_test_models_deleted_at" to table: "test_models"
+CREATE INDEX "idx_test_models_deleted_at" ON "test_models" ("deleted_at");

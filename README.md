@@ -20,51 +20,24 @@ swag init -g ./cmd/app/main.go -o ./api
 _____
 # Миграции
 
-Файл atlas.hcl служит конфигурационным файлом для миграций,
-в теории предполагается дополнительная настройка для mysql и
-clickhouse миграций.
+Для миграций используется самописный генератор gorm-migrateloader, который позволяет создавать миграции на основе gorm-моделей в проекте.
+https://github.com/naazzzz/gorm-migrateloader . Все инструкции по установке в README репозитория.
 
-## Генерация миграций при помощи atlas и gorm
-
-https://atlasgo.io/guides/orms./gorm/getting-started
-
-~~~sh
-atlas migrate diff migration --env {gorm_mysql или gorm_clickhouse}
-~~~
-
-P.S. Не пропускать name - по дефолту пусть будет migration, иначе при запуске контейнера они не пройдут
-
-Для удобства в локальной среде можно использовать
-
-Установка:
-~~~sh
-curl -sSf https://atlasgo.sh | sh
-~~~
-
-Запуск:
-~~~sh 
-sh local-migration-generate.sh
-~~~
-
-Пересборка hash
-~~~sh
-atlas migrate hash migration --env gorm_mysql
-~~~
-~~~sh
-atlas migrate hash migration --env gorm_sqlite
-~~~
-
+Использование:
+```shell
+gorm-migrateloader generate .
+```
 ____
 Так как они полностью совместимы с golang-migrate можно использовать следующее:
 
 > Установите пакет migrate https://github.com/golang-migrate/migrate/tree/v4.18.3/cmd/migrate
 
-Создание файлов миграции(создает пустые файлы up и down миграции)
+Создание файлов миграции(создает пустые файлы up и down миграции) (удобнее использовать gorm-migrateloader для работы с моделями)
  ```sh
   migrate create -ext sql -dir ./internal/database/migrations/postgres migration_name 
   ```
 
-> Применение всех миграций
+> Применение всех миграций ( В BaseProject реализовано автоприменение всех миграций при старте проекта)
 ```sh
  migrate -path ./internal/database/migrations/postgres -database "postgresql://postgres:12345@localhost:5434/listing_db?sslmode=disable" up 
  ```
@@ -86,24 +59,10 @@ ____
 _____
 ## DI
 
-Install Wire by running: (для генерации файла зависимостей)
-```sh
-go install github.com/google/wire/cmd/wire@latest
-```
-and ensuring that `$GOPATH/bin` is added to your `$PATH`.
+https://github.com/soner3/flora
 
-Для реализации DI и спользуется Wire - https://github.com/google/wire/tree/main.
-В целом для корректной реализации требуется:
-
-- Создать так называемые Provide-методы предоставляющий объект структуры (по сути конструктор структуры)
-- Выстроить иерархию структур для необходимой логики с реализованными конструкторами
-- В иерархическом порядке добавить их в файл wire.go
-- Выполнить команду:
-
-  (или же go run -mod=mod github.com/google/wire/cmd/wire)
-
-P.S. Теперь используется обертка над wire, которая называется Flora. Она обобщает функциональность Wire, позволяя быстрее генерировать зависимости и упрощая их конфигурирование. Вместо прямой команды wire, теперь используется:
-
+Используем Flora для DI в проекте - обертка над wire, которая называется Flora. Она обобщает функциональность Wire, позволяя быстрее генерировать зависимости и упрощая их конфигурирование.
+Вместо прямой команды wire, теперь используется:
 ~~~sh 
 flora gen -i . -o ./internal/dependency/app
 ~~~
@@ -112,11 +71,11 @@ flora gen -i . -o ./internal/dependency/app
 _____
 ## Стэк технологий
 
-- Fiber - http-framework
+- Fiber v3 - http-framework
 - swaggo - в интеграции с fiber для удобной и быстрой генерации swagger
 - gorm - ORM
-- golang-migrate - для миграций (по-хорошему от atlas надо отходить)
-- wire - dependency injection
+- самописная, основанная на golang-migrate и atlas (https://github.com/naazzzz/gorm-migrateloader)
+- flora - dependency injection (https://github.com/soner3/flora)
 - enums - go-enum (auto-generation)
 - eris - трассировка ошибок для http_errors
 - envConfig, viper, dotenv - для работы с переменными окружения и выстраивания конфигурации проекта
